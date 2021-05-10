@@ -1,7 +1,10 @@
 import pyautogui as pg
 import math 
 import time
+import serial
+import re
 
+import functools
 import numpy as n
 
 # case x1 > x2, y1 > y2 ✔️✔️✔️ (1008, 567) -> (960, 540)
@@ -12,8 +15,71 @@ import numpy as n
 # with open("./test_inputs") as file:
 #     line = file.readline()
 
+INCOMINGDATAPORT = "/dev/pts/2"
+DATARATE = 9600
+
+ser = serial.Serial(port = INCOMINGDATAPORT, baudrate = DATARATE, timeout = 1)
+
+ser.xonxoff = False     #disable software flow control
+ser.rtscts = False     #disable hardware (RTS/CTS) flow control
+ser.dsrdtr = False       #disable hardware (DSR/DTR) flow control
+
+input()
+
+
+
+def getAcceleration():
+    xR = 0
+    yR = 0
+    zR = 0
+
+    if(ser.isOpen()):
+        try:
+            line = ser.readline().strip()
+            values = line.decode('ascii').split(", ")
+            if(functools.reduce(lambda a, b: a and b, map(lambda v: re.match(r'[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?', v), values))):
+                xR = float(values[0])
+                yR = float(values[1])
+                zR = float(values[2])
+
+
+                return True, n.array([[xR], [yR]])            
+        except Exception as e1:
+            ser.close()
+            print (str(e1))
+            return False, n.array([])
+
+    
+    return False, n.array([])
+
 #correctly-implemented
-def midPoint(ix0,iy0, ix1,iy1):
+def midPoint(ix0, iy0, ix1, iy1):
+    if(iy0 == iy1):
+        xStart = ix0
+        xFin = ix1
+        i = 1
+        if(xStart > xFin):
+            i = -1
+
+        path=[]
+        for j in range(xStart, xFin + i, i):
+            path.append((j, iy0))
+
+        return path  
+    
+    if(ix0 == ix1):
+        yStart = iy0
+        yFin = iy1
+        i = 1
+        if(yStart > yFin):
+            i = -1
+        
+        path = []
+        for j in range(yStart, yFin + i, i):
+            path.append((ix0, j))
+
+        return path
+
     path = []
     isReverse = False
 
@@ -102,31 +168,6 @@ def screenCoordsToNormalise(x, y):
     y_new = clamp(-2 * y / float(HEIGHT) + 1, -1, 1)
 
     return x_new, y_new
-    
-    
-# pg.moveTo(x_new, y_new, 5)
-
-# x0, y0 = normaliseToScreenCoords(-0.05, 0.05)
-# x1, y1 = normaliseToScreenCoords(0, 0)
-
-# x0, y0 = normaliseToScreenCoords(0.05, -0.05)
-# x1, y1 = normaliseToScreenCoords(0, 0)
- 
-# x0, y0 = normaliseToScreenCoords(-0.05, -0.05)
-# x1, y1 = normaliseToScreenCoords(0, 0)
- 
-x0, y0 = normaliseToScreenCoords(0.95, 0.95)
-x1, y1 = normaliseToScreenCoords(0, 0)
-
-print(x0)
-print(y0)
-print(x1)
-print(y1)
-# points = midPoint(x0, y0, x1, y1)
-
-#print(points)
-
-# 0 1 2 3
 
 class State:
     k = 0
@@ -148,7 +189,7 @@ class State:
 
 def move(s):
     x, y = s.nextPoint()   
-    pg.moveTo(x, y)
+    pg.moveTo(x, y, 0)
     if(s.updateState()):
         return True
     else:
@@ -157,17 +198,14 @@ def move(s):
 
 def cleanPath(path):
     v = 200
-    totalTime = (len(path) - 2) * 0.1
+    
     x0, y0 = path[0]
     x1, y1 = path[-1]
 
-    dist = math.sqrt( (x0 - x1)**2 + (y0 - y1)**2 )    
+    dist = math.sqrt( (x0 - x1)**2 + (y0 - y1)**2 )   
     t = dist/v
 
     remPoints = t/0.1
-    
-    print(remPoints)
-    print(len(path))
 
     incre = math.ceil((len(path) - 2)/float(remPoints))
 
@@ -178,30 +216,44 @@ def cleanPath(path):
     
     p.append(path[-1])
 
-    print(len(p))
     return p
 
 
-def calcPositionVelocity(s, v, a):
-    newV = v + a * frameTime
-    newP = v * frameTime + 0.5 * a * frameTime**2
 
-    return newV, newP
+def normalise(v):
+    l = n.linalg.norm(v)
+    if(l != 0):
+        return 1/l * v
+    else:
+        return v
 
-#  v = 0
-v = n.array([[0], [0]])
+MOUSESPEED = 100
+ACCMAG = 10
+
+def calcPositionVelocity(a):
+    timePassed = maxFrameTime/1000
+
+    n_a = normalise(a)
+    print("n_a")
+
+    print(n_a)
+
+    disp = 0.1 * n_a
+    
+
+    return disp
 
 # inverse transform on cur position
-cusX, cusY = pg.position()
-posX, posY = screenCoordsToNormalise(cusX, cusY)
-s = n.array([[0], [0]])
-a = n.array([[2], [2]])
+def curCursorPostion():
+    cusX, cusY = pg.position()
 
+    posX, posY = screenCoordsToNormalise(cusX, cusY)
+    return n.array([[posX], [posY]])
+
+pos = curCursorPostion()
+print(pos)
 
 isPathComplete = True
-b = False
-
-s = None
 path = []
 
 while(True):
@@ -209,40 +261,50 @@ while(True):
     prevTime = time.time() * 1000
     
     # check if there is new a then get a 
-    # calculate new s, v
+    
+    # calculate new pos,
+    t, a = getAcceleration()
+    if t:
+        disp = calcPositionVelocity(a)
+        print("a")
+        print(a)
+        print("disp")
+        print(disp)
+        print("pos")
+        print(pos)
+        finalPos = pos + disp
+        print("finalpos")
+        print(finalPos)
 
-    # calculate path
-    if(isPathComplete and not b):        
-        path = cleanPath(midPoint(x0, y0, x1, y1))
+        # calculate path 
+        x0, y0 = normaliseToScreenCoords(pos[0, 0], pos[1, 0])
+        x1, y1 = normaliseToScreenCoords(finalPos[0, 0], finalPos[1, 0])
+        print(x0, " ", y0)
+        print(x1, " ", y1)
+        uncleanPath = midPoint(x0, y0, x1, y1)
+        if(len(uncleanPath) > 20):
+            path = cleanPath(uncleanPath)
+            print(path)
         
-        # print(path)
-        
-        s = State(path)
-        isPathComplete = False
+            s = State(path)
+            isPathComplete = False
 
         #print('a')
-        
-        b = True
     
-    # move
+    # movetotalTime
     if(not isPathComplete):
         isPathComplete = not move(s)
-    else:
-        print("as")
-        x0, y0 = normaliseToScreenCoords(0.00, 0.0)
-        x1, y1 = normaliseToScreenCoords(0.95, -0.95)
-        path = cleanPath(midPoint(x0, y0, x1, y1))
-        s = State(path)
-
-        isPathComplete = False
-
     
-
     # cur unixtime
     curTime = time.time() * 1000
     frameTime = curTime - prevTime
 
-    if(frameTime < maxFrameTime):
-        time.sleep((maxFrameTime - frameTime)/1000.0)
-    # time
     # sleep
+    if(frameTime < maxFrameTime):
+        asdasceascaadsceasd = 0
+        #time.sleep((maxFrameTime - frameTime)/1000.0)
+
+    
+    pos = curCursorPostion()
+
+ser.close()    

@@ -6,7 +6,7 @@ import serial, time
 #    2. 0: non-blocking mode, return immediately
 #    3. x, x is bigger than 0, float allowed, timeout block call
 
-INCOMINGDATAPORT = "COM1"
+INCOMINGDATAPORT = "/dev/pts/3"
 DATARATE = 9600
 
 ser = serial.Serial()
@@ -31,6 +31,8 @@ except Exception as e:
     exit()
 
 input()
+
+
 
 while(ser.isOpen()):
 
