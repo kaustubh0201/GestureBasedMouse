@@ -1,6 +1,6 @@
 import serial
 
-INCOMINGDATAPORT = "/dev/pts/2"
+INCOMINGDATAPORT = "/dev/pts/5"
 DATARATE = 9600
 
 ser = serial.Serial(port = INCOMINGDATAPORT, baudrate = DATARATE, timeout = 1)

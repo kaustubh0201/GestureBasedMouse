@@ -1,4 +1,5 @@
 import pyautogui as pg
+import mouse
 import math 
 import time
 import serial
@@ -15,7 +16,7 @@ import numpy as n
 # with open("./test_inputs") as file:
 #     line = file.readline()
 
-INCOMINGDATAPORT = "/dev/pts/2"
+INCOMINGDATAPORT = "/dev/pts/4"
 DATARATE = 9600
 
 ser = serial.Serial(port = INCOMINGDATAPORT, baudrate = DATARATE, timeout = 1)
@@ -189,7 +190,8 @@ class State:
 
 def move(s):
     x, y = s.nextPoint()   
-    pg.moveTo(x, y, 0)
+    mouse.move(x, y)
+    # pg.moveTo(x, y, 0.1)
     if(s.updateState()):
         return True
     else:
@@ -251,8 +253,6 @@ def curCursorPostion():
     return n.array([[posX], [posY]])
 
 pos = curCursorPostion()
-print(pos)
-
 isPathComplete = True
 path = []
 
@@ -266,15 +266,7 @@ while(True):
     t, a = getAcceleration()
     if t:
         disp = calcPositionVelocity(a)
-        print("a")
-        print(a)
-        print("disp")
-        print(disp)
-        print("pos")
-        print(pos)
         finalPos = pos + disp
-        print("finalpos")
-        print(finalPos)
 
         # calculate path 
         x0, y0 = normaliseToScreenCoords(pos[0, 0], pos[1, 0])
@@ -301,8 +293,7 @@ while(True):
 
     # sleep
     if(frameTime < maxFrameTime):
-        asdasceascaadsceasd = 0
-        #time.sleep((maxFrameTime - frameTime)/1000.0)
+        time.sleep((maxFrameTime - frameTime)/1000.0)
 
     
     pos = curCursorPostion()
