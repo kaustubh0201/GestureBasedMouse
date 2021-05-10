@@ -6,7 +6,7 @@ import serial, time
 #    2. 0: non-blocking mode, return immediately
 #    3. x, x is bigger than 0, float allowed, timeout block call
 
-INCOMINGDATAPORT = "/dev/pts/5"
+INCOMINGDATAPORT = "/dev/pts/3"
 DATARATE = 9600
 
 ser = serial.Serial()
