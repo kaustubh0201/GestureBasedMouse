@@ -5,10 +5,10 @@ DATARATE = 9600
 
 ser = serial.Serial(port = INCOMINGDATAPORT, baudrate = DATARATE, timeout = 1)
 
+
 ser.xonxoff = False     #disable software flow control
 ser.rtscts = False     #disable hardware (RTS/CTS) flow control
 ser.dsrdtr = False       #disable hardware (DSR/DTR) flow control
-ser.writeTimeout = 2     #timeout for write
 
 input()
 

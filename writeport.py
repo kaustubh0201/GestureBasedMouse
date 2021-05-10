@@ -10,19 +10,19 @@ INCOMINGDATAPORT = "COM1"
 DATARATE = 9600
 
 ser = serial.Serial()
-ser.port = INCOMINGDATAPORT
+ser.port = INCOMINGDATAPORT             # COM Port to write to
 
-ser.baudrate = DATARATE
-ser.bytesize = serial.EIGHTBITS #number of bits per bytes
-ser.parity = serial.PARITY_NONE #set parity check: no parity
+ser.baudrate = DATARATE                 # Bits transfered per second
+ser.bytesize = serial.EIGHTBITS         # Number of bits per bytes
+ser.parity = serial.PARITY_NONE         # Set parity check: no parity
 
-ser.stopbits = serial.STOPBITS_ONE #number of stop bits
-ser.timeout = 1            #non-block read
+ser.stopbits = serial.STOPBITS_ONE      # Number of stop bits
+ser.timeout = 1                         # Time to read between 2 values
 
-ser.xonxoff = False     #disable software flow control
-ser.rtscts = False     #disable hardware (RTS/CTS) flow control
-ser.dsrdtr = False       #disable hardware (DSR/DTR) flow control
-ser.writeTimeout = 2     #timeout for write
+ser.xonxoff = False                     #disable software flow control
+ser.rtscts = False                      #disable hardware (RTS/CTS) flow control
+ser.dsrdtr = False                      #disable hardware (DSR/DTR) flow control
+#ser.writeTimeout = 2                   #timeout for write
 
 try: 
     ser.open()
