@@ -6,7 +6,7 @@ import serial, time
 #    2. 0: non-blocking mode, return immediately
 #    3. x, x is bigger than 0, float allowed, timeout block call
 
-INCOMINGDATAPORT = "/dev/pts/3"
+INCOMINGDATAPORT = "COM1"
 DATARATE = 9600
 
 ser = serial.Serial()
@@ -22,7 +22,7 @@ ser.timeout = 1                         # Time to read between 2 values
 ser.xonxoff = False                     #disable software flow control
 ser.rtscts = False                      #disable hardware (RTS/CTS) flow control
 ser.dsrdtr = False                      #disable hardware (DSR/DTR) flow control
-#ser.writeTimeout = 2                   #timeout for write
+ser.writeTimeout = 2                    #timeout for write
 
 try: 
     ser.open()

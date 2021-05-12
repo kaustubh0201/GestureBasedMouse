@@ -7,35 +7,42 @@ import re
 import functools
 import numpy as n
 
-INCOMINGDATAPORT = "/dev/pts/2"
-DATARATE = 9600
+
+INCOMINGDATAPORT = 'COM2'
+DATARATE = 115200
 
 ser = serial.Serial(port = INCOMINGDATAPORT, baudrate = DATARATE, timeout = 1)
 
-ser.xonxoff = False     #disable software flow control
-ser.rtscts = False     #disable hardware (RTS/CTS) flow control
-ser.dsrdtr = False       #disable hardware (DSR/DTR) flow control
+ser.bytesize = serial.EIGHTBITS         # Number of bits per bytes
+ser.parity = serial.PARITY_NONE         # Set parity check: no parity
+
+ser.stopbits = serial.STOPBITS_ONE      # Number of stop bits
+
+
+ser.xonxoff = True     #disable software flow control
+ser.rtscts = True     #disable hardware (RTS/CTS) flow control
+ser.dsrdtr = True       #disable hardware (DSR/DTR) flow control
 
 input()
 
 # Frame per second
-FPS = 60
+FPS = 200
 maxFrameTime = 1.0/FPS * 1000
 
 # Dimension of the screen
 WIDTH, HEIGHT = pg.size()
 
-MovementThreshold = 1
+MovementThreshold = 0.3
 
 ZeroXValue = 0
-ZeroYValue = 0
+ZeroYValue = 9.8
 
-MaxXValue = 80
-MaxYValue = 80
+MaxXValue = 20
+MaxYValue = 20
 
-MinXValue = -80
-MinYValue = -80
-MaxMouseMovement = 50 
+MinXValue = -20
+MinYValue = -20
+MaxMouseMovement = 0.5
 
 def getAcceleration():
     xR = 0
@@ -45,14 +52,17 @@ def getAcceleration():
     if(ser.isOpen()):
         try:
             line = ser.readline().strip()
-            values = line.decode('ascii').split(", ")
-            if(functools.reduce(lambda a, b: a and b, map(lambda v: re.match(r'[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?', v), values))):
+            values = line.decode('ascii').split(",")
+            print(values)
+
+            if(values != ['']):
+                values = [i for i in values if i != '']
                 xR = float(values[0])
                 yR = float(values[1])
                 zR = float(values[2])
+                return True, n.array([[xR], [zR]])
 
 
-                return True, n.array([[xR], [yR]])            
         except Exception as e1:
             ser.close()
             print (str(e1))
@@ -79,7 +89,7 @@ def screenCoordsToNormalise(x, y):
 
 
 def move(p):  
-    pg.move(p[0], p[1])
+    pg.moveTo(p[0], p[1])
     return True
 
 def normalise(v):
@@ -130,16 +140,20 @@ while(True):
     # check if there is new a then get a 
     t, a = getAcceleration()
     if t:
-        finalPos = calcNextPos(a) 
-        print("a")
-        print(a)
+        finalPos = calcNextPos(a) + pos
+        # print("a")
+        # print(a)
         
-        print("finalPos")
-        print(finalPos)
+        # print("finalPos")
+        # print(finalPos)
         # calculate path
-        #x1, y1 = normaliseToScreenCoords(finalPos[0, 0], finalPos[1, 0])
-        #print(x1, " ", y1)
-        finalp = (finalPos[0, 0], finalPos[1, 0])
+        x0, y0 = normaliseToScreenCoords(pos[0, 0], pos[1, 0])
+        x1, y1 = normaliseToScreenCoords(finalPos[0, 0], finalPos[1, 0])
+        # print(pos)
+        # print(finalPos)
+        print(x1, " ", y1)
+        print(x0, " ", y0)
+        finalp = (x1, y1)
 
         isPathComplete = False
 
@@ -152,8 +166,8 @@ while(True):
     frameTime = curTime - prevTime
 
     # sleep
-    if(frameTime < maxFrameTime):
-        time.sleep((maxFrameTime - frameTime)/1000.0)
+    #if(frameTime < maxFrameTime):
+    #    time.sleep((maxFrameTime - frameTime)/1000.0)
     
     
     pos = curCursorPostion()
