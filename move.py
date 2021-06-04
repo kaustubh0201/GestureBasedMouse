@@ -49,45 +49,48 @@ pg.moveTo(WIDTH/2, HEIGHT/2, 0)
 x_direction = 0
 y_direction = 0
 
-thres = 0.4
-thres2 = 0.5
+thres = 20
 
 mag = 10
 
 x_avg = 0
+
+
+######
+# Throw data
+p_t = time.time()
+
+while(time.time() - p_t < 4):
+    getAcceleration()
+
+######
+
+
 while(True):
     a = getAcceleration()
 
     print(a)
 
-#    if a != None:
-#        
-#        temp = (a[0]/abs(a[0])) * 0.1
-#        if(temp < 0):
-#            x_avg += -0.1
-#        else:
-#            x_avg += 0.1
-#
-#        if(x_avg > thres):
-#            x_avg = thres2
-#        elif(-thres2 > x_avg):
-#            x_avg = -thres2
-#
-#        if(x_avg > thres):
-#            x_direction = 1
-#        elif(x_avg < -thres):
-#            x_direction = -1    
-#
-#
-#        currX, currY = pg.position()
-#
-#        currX = currX + x_direction * mag
-#        
-#        print(" x_avg: " + str(x_avg),  " X-Accn: " + str(a[0]), " x_dir: " + str(x_direction))
-#
-#        pg.moveTo(currX, currY, 0)
-#
-#    else:
-#        print("Error")
+    if a != None:
+        
+        if(-thres < a[1] < thres ):
+            x_direction = 0
+        if(a[1] > thres):
+            x_direction = 1
+        elif(a[1] < -thres):
+            x_direction = -1    
+        
+
+
+        currX, currY = pg.position()
+
+        currX = currX + x_direction * mag
+        
+        print(" X-Accn: " + str(a[0]), " x_dir: " + str(x_direction))
+
+        pg.moveTo(currX, currY, 0)
+
+    else:
+        print("Error")
 
 ser.close()
