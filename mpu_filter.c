@@ -45,8 +45,21 @@ void set_last_read_angle_data(unsigned long time, float x, float y, float z,
     last_gyro_z_angle = z_gyro;
 }
 
+void read(sensorValue * sv){
+    sensors_event_t a, g, temp;
+    mpu.getEvent(&a, &g, &temp);
+
+    sv->ax = a.acceleration.x; 
+    sv->ay = a.acceleration.y; 
+    sv->az = a.acceleration.z; 
+    
+    sv->gx = g.gyro.x; 
+    sv->gy = g.gyro.y; 
+    sv->gz = g.gyro.z; 
+}
+
 void calibrate_sensors() {
-    int   num_readings = 10;
+    int num_readings = 100;
     
     float x_accel = 0;
     float y_accel = 0;
@@ -87,19 +100,6 @@ void calibrate_sensors() {
     base_x_gyro = x_gyro;
     base_y_gyro = y_gyro;
     base_z_gyro = z_gyro;
-}
-
-void read(sensorValue * sv){
-    sensors_event_t a, g, temp;
-    mpu.getEvent(&a, &g, &temp);
-
-    sv->ax = a.acceleration.x; 
-    sv->ay = a.acceleration.y; 
-    sv->az = a.acceleration.z; 
-    
-    sv->gx = g.gyro.x; 
-    sv->gy = g.gyro.y; 
-    sv->gz = g.gyro.z; 
 }
 
 void setup(void) {

@@ -20,7 +20,7 @@ ser.dsrdtr = False
 
 input()
 
-def getAcceleration():
+def getFiltered():
     xR = 0
     yR = 0
     zR = 0
@@ -50,40 +50,58 @@ x_direction = 0
 y_direction = 0
 
 xThres = 20
-yThres = 20
+yThres = 30
 
 xMag = 10
-yMag = -10
+yMag = -5
+
+baseX = 0
+baseY = 0
 
 ######
 # Throw data
-p_t = time.time()
+num_readings = 100
+i = 0
+getFiltered()
+while(i < num_readings):
+   
 
-while(time.time() - p_t < 4):
-    getAcceleration()
+    f = getFiltered()
+    
+    if f != None:
+        i += 1
+        baseX += f[0]
+        baseY += f[1]
+   
 
+baseX /= num_readings
+baseY /= num_readings
+
+print(baseX, " ", baseY)
 ######
 
 
 while(True):
-    a = getAcceleration()
+    f = getFiltered()
+    if f != None:
+        
+        f[0] -= baseX
+        f[1] -= baseY
+        print(f)
 
-   
 
-    if a != None:
-        print(a)
-        if(-xThres < a[1] < xThres ):
+        if(-xThres < f[1] < xThres ):
             x_direction = 0
-        elif(a[1] > xThres):
+        elif(f[1] > xThres):
             x_direction = 1
-        elif(a[1] < -xThres):
+        elif(f[1] < -xThres):
             x_direction = -1    
 
-        if(-yThres < a[0] < yThres):
+        if(-yThres < f[0] < yThres):
             y_direction = 0
-        elif(a[0] > yThres):
+        elif(f[0] > yThres):
             y_direction = 1
-        elif(a[0] < -yThres):
+        elif(f[0] < -yThres):
             y_direction = -1
         
 
@@ -93,7 +111,7 @@ while(True):
         currX = currX + x_direction * xMag
         currY = currY + y_direction * yMag
         
-        print(" X-Accn: " + str(a[1]), " x_dir: " + str(x_direction), "|||||", " Y-Accn: " + str(a[0]), " y_dir: " + str(y_direction))
+        print(" X-Accn: " + str(f[1]), " x_dir: " + str(x_direction), "|||||", " Y-Accn: " + str(f[0]), " y_dir: " + str(y_direction))
 
         pg.moveTo(currX, currY, 0)
 
