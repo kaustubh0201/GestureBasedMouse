@@ -28,18 +28,17 @@ def getAcceleration():
 
     if(ser.isOpen()):
         try:
-            xR = ser.read(4)
-            yR = ser.read(4)
-            zR = ser.read(4)
+            if(ser.inWaiting() > 0):
+                xR = ser.read(4)
+                yR = ser.read(4)
+                zR = ser.read(4)
 
-            fx = float(struct.unpack('f', xR)[0])
-            fy = float(struct.unpack('f', yR)[0])
-            fz = float(struct.unpack('f', zR)[0])
+                fx = float(struct.unpack('f', xR)[0])
+                fy = float(struct.unpack('f', yR)[0])
+                fz = float(struct.unpack('f', zR)[0])
 
-            return  [fx, fy]
+                return  [fx, fy]
         except Exception as e1:
-            ser.close()
-            print (str(e1))
             return None
 
     
@@ -72,10 +71,10 @@ while(time.time() - p_t < 4):
 while(True):
     a = getAcceleration()
 
-    print(a)
+   
 
     if a != None:
-        
+        print(a)
         if(-thres < a[1] < thres ):
             x_direction = 0
         if(a[1] > thres):
@@ -92,8 +91,5 @@ while(True):
         print(" X-Accn: " + str(a[1]), " x_dir: " + str(x_direction))
 
         pg.moveTo(currX, currY, 0)
-
-    else:
-        print("Error")
 
 ser.close()
