@@ -10,7 +10,7 @@ import numpy as n
 INCOMINGDATAPORT = "COM4"
 DATARATE = 115200
 
-ser = serial.Serial(port = INCOMINGDATAPORT, baudrate = DATARATE, timeout = 1)
+ser = serial.Serial(port = INCOMINGDATAPORT, baudrate = DATARATE, timeout = 0.1)
 
 ser.xonxoff = False     
 ser.rtscts = False     
@@ -23,17 +23,18 @@ def getAcceleration():
     yR = 0
     zR = 0
 
+
     if(ser.isOpen()):
         try:
-            line = ser.readline().strip()
-            values = line.decode('ascii').split(", ")
-            if(functools.reduce(lambda a, b: a and b, map(lambda v: re.match(r'[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?', v), values))):
-                xR = float(values[0])
-                yR = float(values[1])
-                zR = float(values[2])
+            xR = ser.read(4)
+            yR = ser.read(4)
+            zR = ser.read(4)
 
+            fx = float(struct.unpack('f', xR)[0])
+            fy = float(struct.unpack('f', yR)[0])
+            fz = float(struct.unpack('f', zR)[0])
 
-                return  [xR, yR]
+            return  [fx, fy]
         except Exception as e1:
             ser.close()
             print (str(e1))
@@ -86,7 +87,7 @@ while(True):
 
         currX = currX + x_direction * mag
         
-        print(" X-Accn: " + str(a[0]), " x_dir: " + str(x_direction))
+        print(" X-Accn: " + str(a[1]), " x_dir: " + str(x_direction))
 
         pg.moveTo(currX, currY, 0)
 
