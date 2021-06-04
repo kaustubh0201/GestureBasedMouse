@@ -7,6 +7,8 @@ import re
 import functools
 import numpy as n
 
+import struct
+
 INCOMINGDATAPORT = "COM4"
 DATARATE = 115200
 

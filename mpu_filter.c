@@ -228,9 +228,9 @@ void loop() {
     set_last_read_angle_data(t_now, angle_x, angle_y, angle_z, unfiltered_gyro_angle_x, unfiltered_gyro_angle_y, unfiltered_gyro_angle_z);
     // Send the data to the serial port
 
-    Serial.print(angle_x, 2);
-    Serial.print(angle_y, 2);
-    Serial.print(angle_z, 2);
+    Serial.write((byte *) &angle_x, 4);
+    Serial.write((byte *) &angle_y, 4);
+    Serial.write((byte *) &angle_z, 4);
 
     delay(50);
 }
