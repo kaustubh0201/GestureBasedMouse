@@ -70,7 +70,7 @@ void calibrate_sensors() {
         x_gyro += accel_t_gyro.gx;
         y_gyro += accel_t_gyro.gy;
         z_gyro += accel_t_gyro.gz;
-        delay(100);
+        delay(150);
     }
 
     x_accel /= num_readings;
@@ -230,7 +230,6 @@ void loop() {
 
     Serial.write((byte *) &angle_x, 4);
     Serial.write((byte *) &angle_y, 4);
-    Serial.write((byte *) &angle_z, 4);
 
-    delay(50);
+    delay(150);
 }

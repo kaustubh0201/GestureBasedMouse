@@ -31,11 +31,9 @@ def getAcceleration():
             if(ser.inWaiting() > 0):
                 xR = ser.read(4)
                 yR = ser.read(4)
-                zR = ser.read(4)
 
                 fx = float(struct.unpack('f', xR)[0])
                 fy = float(struct.unpack('f', yR)[0])
-                fz = float(struct.unpack('f', zR)[0])
 
                 return  [fx, fy]
         except Exception as e1:
@@ -55,7 +53,7 @@ xThres = 20
 yThres = 20
 
 xMag = 10
-yMag = 10
+yMag = -10
 
 ######
 # Throw data
@@ -95,7 +93,7 @@ while(True):
         currX = currX + x_direction * xMag
         currY = currY + y_direction * yMag
         
-        print(" X-Accn: " + str(a[1]), " x_dir: " + str(x_direction), "|||||", " Y-Accn: " + str(a[0]), " x_dir: " + str(y_direction))
+        print(" X-Accn: " + str(a[1]), " x_dir: " + str(x_direction), "|||||", " Y-Accn: " + str(a[0]), " y_dir: " + str(y_direction))
 
         pg.moveTo(currX, currY, 0)
 
