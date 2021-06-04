@@ -229,19 +229,8 @@ void loop() {
     // Send the data to the serial port
 
     Serial.print(angle_x, 2);
-    Serial.print(F(", "));
     Serial.print(angle_y, 2);
-    Serial.print(F(", "));
     Serial.print(angle_z, 2);
-    Serial.println(F(""));
-    
-//   Serial.print(g.gyro.x);
-//   Serial.print(", ");
-//   Serial.print(g.gyro.y);
-//   Serial.print(", ");
-//   Serial.print(g.gyro.z);
-//   Serial.println("");
 
-    // Delay so we don't swamp the serial port
     delay(50);
 }
