@@ -51,12 +51,11 @@ pg.moveTo(WIDTH/2, HEIGHT/2, 0)
 x_direction = 0
 y_direction = 0
 
-thres = 20
+xThres = 20
+yThres = 20
 
-mag = 10
-
-x_avg = 0
-
+xMag = 10
+yMag = 10
 
 ######
 # Throw data
@@ -75,20 +74,28 @@ while(True):
 
     if a != None:
         print(a)
-        if(-thres < a[1] < thres ):
+        if(-xThres < a[1] < xThres ):
             x_direction = 0
-        if(a[1] > thres):
+        elif(a[1] > xThres):
             x_direction = 1
-        elif(a[1] < -thres):
+        elif(a[1] < -xThres):
             x_direction = -1    
+
+        if(-yThres < a[0] < yThres):
+            y_direction = 0
+        elif(a[0] > yThres):
+            y_direction = 1
+        elif(a[0] < -yThres):
+            y_direction = -1
         
 
 
         currX, currY = pg.position()
 
-        currX = currX + x_direction * mag
+        currX = currX + x_direction * xMag
+        currY = currY + y_direction * yMag
         
-        print(" X-Accn: " + str(a[1]), " x_dir: " + str(x_direction))
+        print(" X-Accn: " + str(a[1]), " x_dir: " + str(x_direction), "|||||", " Y-Accn: " + str(a[0]), " x_dir: " + str(y_direction))
 
         pg.moveTo(currX, currY, 0)
 
