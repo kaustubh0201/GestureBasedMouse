@@ -1,2 +1,0 @@
-# GestureBasedMouse
-IOT_PROJECT
