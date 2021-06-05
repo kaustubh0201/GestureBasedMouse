@@ -80,9 +80,7 @@ baseY /= num_readings
 print(baseX, " ", baseY)
 ######
 
-stableVal = 15
-stableCount = 0
-
+leftClickTime = 0
 
 while(True):
     f = getFiltered()
@@ -109,12 +107,10 @@ while(True):
         
         
         if(x_direction == 0 and y_direction == 0):
-            stableCount += 1
-            if(stableCount == stableVal):
+            if(time.time() - leftClickTime > 2):
                 pg.click()
-                stableCount = 0
         else:
-            stableCount = 0
+            leftClickTime = time.time()
 
 
         currX, currY = pg.position()
