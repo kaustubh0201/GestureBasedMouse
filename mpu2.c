@@ -39,7 +39,7 @@ class Filter {
     private:
         float accVariance = 0.001;
         float gyroBias = 0.003;
-        float noiseVariance = 0.03;
+        float noiseVariance = 0.03; //0.066
         float rate = 0.0;
         float bias = 0.0;
 
@@ -258,6 +258,7 @@ void setup(void) {
     }
 
     calibrate_sensors();
+    Serial.println("Calibration Ended.");
     set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0);
     
 
@@ -272,7 +273,11 @@ float getXangle(float accel_x, float accel_y, float accel_z){
     return atan(accel_y/sqrt(pow(accel_x,2) + pow(accel_z,2)))    * RADIANS_TO_DEGREES;
 }
 
+int counter = 0;
+
 void loop() {
+    counter++;
+    
     sensorValue sv;
     read(&sv);
     unsigned long t_now = millis();
@@ -324,28 +329,32 @@ void loop() {
 
     set_last_read_angle_data(t_now, angle_x, angle_y, angle_z, unfiltered_gyro_angle_x, unfiltered_gyro_angle_y, unfiltered_gyro_angle_z);
     // Send the data to the serial port
-    Serial.print(F("DEL:"));                            //Delta T
-    Serial.print(dt, DEC);
-    Serial.print(F("#ACC:"));                            //Accelerometer angle
+    Serial.print(F("Counter: "));                          
+    Serial.print(counter);
+    Serial.print("|");
+
+    Serial.print(F(" #GYR: "));
+    Serial.print(unfiltered_gyro_angle_x, 2);
+    Serial.print(F(","));
+    Serial.print(unfiltered_gyro_angle_y, 2);
+
+    Serial.print(F(" #ACC: "));                           
     Serial.print(accel_angle_x, 2);
     Serial.print(F(","));
     Serial.print(accel_angle_y, 2);
-    Serial.print(F(","));
-    Serial.print(accel_angle_z, 2);
-    Serial.print(F("#GYR:"));
-    Serial.print(unfiltered_gyro_angle_x, 2);                //Gyroscope angle
-    Serial.print(F(","));
-    Serial.print(unfiltered_gyro_angle_y, 2);
-    Serial.print(F(","));
-    Serial.print(unfiltered_gyro_angle_z, 2);
-    Serial.print(F("#FIL:"));                         //Filtered angle
+
+    Serial.print(F(" #KFIL:"));
     Serial.print(xFilter.angle, 2);
     Serial.print(F(","));
     Serial.print(yFilter.angle, 2);
+    Serial.print(F(", "));
+
+    Serial.print(F(" #CFIL: "));
+    Serial.print(angle_x, 2);
     Serial.print(F(","));
-    Serial.print(angle_z, 2);
-    Serial.println(F(""));
-    
+    Serial.print(angle_y, 2);
+    Serial.print("\n");
+
     // Delay so we don't swamp the serial port
-    delay(5);
+    delay(150);
 }
