@@ -270,26 +270,8 @@ void loop() {
     set_last_read_angle_data(t_now, angle_x, angle_y, angle_z, unfiltered_gyro_angle_x, unfiltered_gyro_angle_y, unfiltered_gyro_angle_z);
     // Send the data to the serial port
 
-    // Serial.write((byte *) &angle_x, 4);
-    // Serial.write((byte *) &angle_y, 4);
+    Serial.write((byte *) &xFilter.angle, 4);
+    Serial.write((byte *) &yFilter.angle, 4);
     
-    Serial.print(" |GYRO| ");
-    Serial.print(gyro_angle_x);
-    Serial.print(", ");
-    Serial.print(gyro_angle_y);
-    Serial.print(" |ACC| ");
-    Serial.print(accel_angle_x);
-    Serial.print(", ");
-    Serial.print(accel_angle_y);
-    Serial.print(" |COMP FILTER| ");
-    Serial.print(angle_x);
-    Serial.print(", ");
-    Serial.print(angle_y);
-    Serial.print(" |KALMAN FILTER| ");
-    Serial.print(xFilter.angle);
-    Serial.print(", ");
-    Serial.print(yFilter.angle);
-    Serial.print("\n");
-
     delay(150);
 }

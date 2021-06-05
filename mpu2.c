@@ -44,7 +44,7 @@ class Filter {
         float bias = 0.0;
 
 
-        float errorCoVMat[2][2] = { 
+        float errorCoVMat[2][2] = {
             0, 0000.0,
             0000.0, 0
         };

@@ -15,7 +15,7 @@ DATARATE = 115200
 ser = serial.Serial(port = INCOMINGDATAPORT, baudrate = DATARATE, timeout = 0.1)
 
 ser.xonxoff = False     
-ser.rtscts = False     
+ser.rtscts = False
 ser.dsrdtr = False      
 
 input()
@@ -58,6 +58,8 @@ yMag = -5
 baseX = 0
 baseY = 0
 
+print("")
+
 ######
 # Throw data
 num_readings = 100
@@ -80,7 +82,8 @@ baseY /= num_readings
 print(baseX, " ", baseY)
 ######
 
-leftClickTime = 0
+stableVal = 15
+stableCount = 0
 
 while(True):
     f = getFiltered()
@@ -104,13 +107,15 @@ while(True):
             y_direction = 1
         elif(f[0] < -yThres):
             y_direction = -1
-        
-        
+
+
         if(x_direction == 0 and y_direction == 0):
-            if(time.time() - leftClickTime > 2):
+            stableCount += 1
+            if(stableCount == stableVal):
                 pg.click()
+                stableCount = 0
         else:
-            leftClickTime = time.time()
+            stableCount = 0
 
 
         currX, currY = pg.position()
