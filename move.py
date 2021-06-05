@@ -80,6 +80,9 @@ baseY /= num_readings
 print(baseX, " ", baseY)
 ######
 
+stableVal = 15
+stableCount = 0
+
 
 while(True):
     f = getFiltered()
@@ -104,6 +107,14 @@ while(True):
         elif(f[0] < -yThres):
             y_direction = -1
         
+        
+        if(x_direction == 0 and y_direction == 0):
+            stableCount += 1
+            if(stableCount == stableVal):
+                pg.click()
+                stableCount = 0
+        else:
+            stableCount = 0
 
 
         currX, currY = pg.position()
@@ -114,5 +125,7 @@ while(True):
         print(" X-Accn: " + str(f[1]), " x_dir: " + str(x_direction), "|||||", " Y-Accn: " + str(f[0]), " y_dir: " + str(y_direction))
 
         pg.moveTo(currX, currY, 0)
+
+        
 
 ser.close()
