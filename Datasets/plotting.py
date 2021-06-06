@@ -29,8 +29,9 @@ for col in file:
     cfil_y.append(float(col['cfilY']))
 
 accX = np.array(acc_x[0:200])
-accY = np.array(acc_y)
+accY = np.array(acc_y[0:200])
 gyrX = np.array(gyr_x[0:200])
+gyrY = np.array(gyr_y[0:200])
 kalX = np.array(kal_x)
 cfilX = np.array(cfil_x)
 
@@ -44,11 +45,27 @@ for i in range(0, 200):
 
 y = np.array(y_count)
 
+# fig, (ax1, ax2) = plt.subplots(1, 2)
+# fig.suptitle('Horizontally stacked subplots')
+# ax1.plot(x, y)
+# ax2.plot(x, -y)
+
+
 # plot lines
-plt.plot(y, accX, label = "acc_x")
-plt.plot(y, gyrX, label = "gyr_x")
+fig, (ax1, ax2) = plt.subplots(1, 2)
+fig.suptitle("Gyroscope Drift Over Time")
+ax1.plot(y, accX, label = "Acceleration value in x direction")
+ax1.plot(y, gyrX, label = "Gyroscope value around x axis")
+ax2.plot(y, accY, label = "Acceleration value in y direction")
+ax2.plot(y, gyrY, label = "Gyroscope value around y axis")
+
 # plt.plot(y, kalX, label = "kal_x")
 # plt.plot(y, cfilX, label = "cfil_x")
-plt.grid(True)
-plt.legend()
+ax1.grid(True)
+ax1.legend()
+# ax1.show()
+ax2.grid(True)
+ax2.legend()
+# ax2.show()
 plt.show()
+
